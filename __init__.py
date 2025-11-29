@@ -1,6 +1,7 @@
 import re
 import sys
 import os
+from pprint import pprint
 
 def get_filepath() -> str:
   if len(sys.argv) < 2:
@@ -28,17 +29,32 @@ def parse_album_headers(raw_album_info: str):
   
   return album_headers
 
-def parse_album_info(raw_album_info: str):
-  album_info = {}
+def parse_album_tracks(raw_album_info: str):
   tracks = []
-  
   track_pattern = re.compile(r'\[(\d+)\]\s+(.+)')
+  
+  for line in raw_album_info.splitlines:
+    match = track_pattern.match(line)
+    if match:
+      track_num, track_title = match.groups()
+      tracks.append({"TrackNumber": int(track_num), "Title": track_title})
+  
+  return tracks
+
+
+def parse_album_info(raw_album_info: str):
+  album_info = parse_album_headers(raw_album_info)
+  tracks = parse_album_tracks(raw_album_info)
+  album_info["Tracks"] = tracks
+  
+  return album_info
 
 def __init__():
   file_path = get_filepath()
   with open(file_path, "r") as file:
     raw_album_info = file.read()
-    
+    album_info = parse_album_info(raw_album_info)
+    pprint(album_info)
   
   
   
