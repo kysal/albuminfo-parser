@@ -17,36 +17,43 @@ def get_filepath() -> str:
   
   return file_path  
 
-def parse_album_headers(raw_album_info: str):
-  album_headers = {}
+def parse_album_info(raw_album_info: str):
+  album_info = {
+    "Discs": []
+  }
+  
+  data_points = raw_album_info.splitlines()
   header_pattern = re.compile(r'\[(.*?)\]\s+(.+)')
   
-  for line in raw_album_info.splitlines():
-    match = header_pattern.match(line)
-    if match and not match.group(1).isdigit():
-      key, value = match.groups()
-      album_headers[key] = value.strip()
+  line_index = 0;
   
-  return album_headers
-
-def parse_album_tracks(raw_album_info: str):
-  tracks = []
+  # header details
+  while data_points[line_index] != "":
+    header_match = header_pattern.match(data_points[line_index])
+    key, value = header_match.groups()
+    album_info[key] = value.strip()
+    line_index += 1
+    
+  line_index += 2
+  
+  # disc track details
   track_pattern = re.compile(r'\[(\d+)\]\s+(.+)')
-  
-  for line in raw_album_info.splitlines():
-    match = track_pattern.match(line)
-    if match:
-      track_num, track_title = match.groups()
-      tracks.append({"TrackNumber": int(track_num), "Title": track_title})
-  
-  return tracks
+  current_disc = []
+  while line_index < len(data_points):
+    if data_points[line_index][0] == "=":
+      album_info["Discs"].append(current_disc)
+      current_disc = []
+      line_index += 1
+      continue
+    
+    print(data_points[line_index])
+    track_match = track_pattern.match(data_points[line_index])
+    track_num, track_title = track_match.groups()
+    current_disc.append({"TrackNumber": int(track_num), "Title": track_title})
+    line_index += 1
+    
+  album_info["Discs"].append(current_disc)
 
-
-def parse_album_info(raw_album_info: str):
-  album_info = parse_album_headers(raw_album_info)
-  tracks = parse_album_tracks(raw_album_info)
-  album_info["Tracks"] = tracks
-  
   return album_info
 
 if __name__ == "__main__":
