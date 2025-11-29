@@ -46,7 +46,6 @@ def parse_album_info(raw_album_info: str):
       line_index += 1
       continue
     
-    print(data_points[line_index])
     track_match = track_pattern.match(data_points[line_index])
     track_num, track_title = track_match.groups()
     current_disc.append({"TrackNumber": int(track_num), "Title": track_title})
