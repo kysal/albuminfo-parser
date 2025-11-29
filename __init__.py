@@ -33,7 +33,7 @@ def parse_album_tracks(raw_album_info: str):
   tracks = []
   track_pattern = re.compile(r'\[(\d+)\]\s+(.+)')
   
-  for line in raw_album_info.splitlines:
+  for line in raw_album_info.splitlines():
     match = track_pattern.match(line)
     if match:
       track_num, track_title = match.groups()
@@ -49,7 +49,7 @@ def parse_album_info(raw_album_info: str):
   
   return album_info
 
-def __init__():
+if __name__ == "__main__":
   file_path = get_filepath()
   with open(file_path, "r") as file:
     raw_album_info = file.read()
